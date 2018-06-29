@@ -81,17 +81,20 @@ public class UpdateTask implements Runnable {
 
 			if( command.equals( "START" ) ) {
 				//save user and set notification to true
-				updateUserDbAndNotificationInfo(message.getFrom(), Boolean.TRUE);
-				sendTelegramMessage(chatId, "Ciao! Questo è un bot di supporto per una community privata. \n");
+				updateUserDbInfo(message.getFrom());
+				sendTelegramHtmlMessage(chatId, "<b>Welcome in TrentEat</b> \n"
+						+ "forward your position to get agritur near you (/range for set distance)"
+						+ "/place <place name> for agritur near <place name>"
+						+ "/agritur <agritur full name> for realtime info"
+						+ "/like <agritur full name> for a good agritur"
+						+ "/dislike <agritur full name> for a bad agritur"
+						+ "/findForMe for recommendation", true);
 				Thread.currentThread().interrupt();
 				return;
 			}
 			
 			//user is in db
 			if(userEntity != null) {
-				/*
-				 * Commands for ACCEPTED
-				 */
 				if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
     				
     			}
@@ -147,10 +150,6 @@ public class UpdateTask implements Runnable {
     }
     
     private void updateUserDbInfo(User user) {
-    	updateUserDbAndNotificationInfo(user, null);
-    }
-    	
-    private void updateUserDbAndNotificationInfo(User user, Boolean notification) {
     	UserEntity dbUser = UserEntity.getById(user.getId().longValue());
     	if(dbUser == null) {
     		dbUser = new UserEntity();
@@ -158,9 +157,6 @@ public class UpdateTask implements Runnable {
     		dbUser.setRole(UserRole.USER);
     	}
 		dbUser.setUsername(user.getUserName());
-		if(notification != null) {
-			dbUser.setNotify(notification.booleanValue());
-		}
     	UserEntity.saveUser(dbUser);
     }
 
@@ -191,7 +187,7 @@ public class UpdateTask implements Runnable {
 		for(UserEntity u : members) {
 			String username = "USER_NON_SALVATO_";
 			if(u.getUsername() != null) username = "@"+sanitize(u.getUsername());
-			text = text + username +" "+ u.isNotify() +"  <code>"+u.getUserId()+"</code>  "+sanitize(u.getRole().toString())+"\n";
+			text = text + username +"  <code>"+u.getUserId()+"</code>  "+sanitize(u.getRole().toString())+"\n";
 		}
 		
 		reply.setText(text);		
@@ -203,31 +199,6 @@ public class UpdateTask implements Runnable {
 		}
 		
 	}
-    
-    private void sendTelegramUserInfo(long chatId, User user, String role) {
-    	SendMessage reply = new SendMessage();
-		reply.setChatId(chatId);
-		reply.enableHtml(true);
-		reply.setText(
-				"Nome: <b>" + sanitize(user.getFirstName()) + "</b>\n" +
-				"Username: @" + sanitize(user.getUserName()) + "\n" +
-				"<code>" + user.getId() +"</code>\n" +
-				"Status: " + role + "\n\n" +
-				"<code>/"+ PrivateCommand.APPROVA.toString().toLowerCase() +" "+user.getId()+ "</code>\n\n" +
-				"<code>/"+ PrivateCommand.LIMITA.toString().toLowerCase() +" "+user.getId()+ "</code>\n\n" +
-				"<code>/"+ PrivateCommand.BAN.toString().toLowerCase() +" "+user.getId()+ "</code>"
-				);
-		try {
-			bot.sendMessage(reply);
-		} catch (TelegramApiException e) {
-			if(e instanceof TelegramApiRequestException) {
-				logger.error("User info not accepted, ???");
-			}
-			else {
-				e.printStackTrace();
-			}
-		}
-    }
         
     private void sendUserDbInfo(long chatId, UserEntity user) {
     	SendMessage reply = new SendMessage();
@@ -238,8 +209,7 @@ public class UpdateTask implements Runnable {
 		reply.setText(
 				"Username: " + username + "\n" +
 				"<code>" + user.getUserId() +"</code>\n" +
-				"Status: " + sanitize(user.getRole().toString()) + "\n" +
-				"Notifiche attive: " + user.isNotify()
+				"Status: " + sanitize(user.getRole().toString()) + "\n"
 				);
 		try {
 			bot.sendMessage(reply);
@@ -260,23 +230,6 @@ public class UpdateTask implements Runnable {
 		return botId;
     }
     
-    private boolean botIsAdmin(long chatId, int botId) {
-    	GetChatAdministrators getChatAdministrators = new GetChatAdministrators();
-		getChatAdministrators.setChatId(chatId);
-		List<ChatMember> admins = null;
-		try {
-			admins = bot.getChatAdministrators(getChatAdministrators);
-		} catch (TelegramApiException e) {
-			logger.error("Error checking if bot is chat admin");
-			e.printStackTrace();
-			return false;
-		}
-		for(ChatMember admin : admins) {
-			if(admin.getUser().getId() == botId) return true;
-		}
-		return false;
-    }
-    
     private void promoteUser(long chatId, long userToPromoteID, UserEntity senderUser) {
     	UserEntity userToPromote = UserEntity.getById(userToPromoteID);
 		if(userToPromote == null) {
@@ -284,7 +237,6 @@ public class UpdateTask implements Runnable {
 			userToPromote = new UserEntity();
 			userToPromote.setUserId(userToPromoteID);
 			userToPromote.setRole(UserRole.USER);
-			userToPromote.setNotify(false);
 		}
 		else {
 			if(senderUser.getRole().compareTo(userToPromote.getRole()) < 0) {
