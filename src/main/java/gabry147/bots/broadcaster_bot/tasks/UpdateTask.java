@@ -83,12 +83,12 @@ public class UpdateTask implements Runnable {
 				//save user and set notification to true
 				updateUserDbInfo(message.getFrom());
 				sendTelegramHtmlMessage(chatId, "<b>Welcome in TrentEat</b> \n"
-						+ "forward your position to get agritur near you (/range for set distance)"
+						+ sanitize("forward your position to get agritur near you (/range for set distance)"
 						+ "/place <place name> for agritur near <place name>"
 						+ "/agritur <agritur full name> for realtime info"
 						+ "/like <agritur full name> for a good agritur"
 						+ "/dislike <agritur full name> for a bad agritur"
-						+ "/findForMe for recommendation", true);
+						+ "/findForMe for recommendation"), true);
 				Thread.currentThread().interrupt();
 				return;
 			}
