@@ -1,0 +1,17 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.settings/
+.classpath
+/.project
+
+# Maven
+log/
+target/
+/.project
+
+#log files
+*.log
