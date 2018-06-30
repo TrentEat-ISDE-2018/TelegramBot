@@ -62,8 +62,24 @@ public class UpdateTask implements Runnable {
 			}
     		
     		if(! message.hasText()) {
-    			if(message.hasLocation()) {
-    				//TODO
+				if(message.hasLocation()){
+					Location loc = message.getLocation();
+					AgriturServiceImplService service = new AgriturServiceImplService();
+					AgriturService agriturService = service.getAgriturServiceImplPort();
+					List<Agritur> near = new ArrayList<>();
+					try{
+						near = agriturService.getNearAgritur(loc.getLatitude(), loc.getLongitude(), userEntity.getRange());
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+					if(! near.isEmpty()){
+						sendAgriturList(chatId, near);
+					}
+					else {
+						sendTelegramMessage(chatId, "Not found, place not recognized or no near agritur");
+					}
+					Thread.currentThread().interrupt();
+					return;
     			}
     			else {
     				sendTelegramMessage(chatId, "Not supported");
@@ -108,28 +124,7 @@ public class UpdateTask implements Runnable {
 			
 			//user is in db
 			if(userEntity != null) {
-				if(! message.hasText()) {
-					if(message.hasLocation()){
-						Location loc = message.getLocation();
-						AgriturServiceImplService service = new AgriturServiceImplService();
-						AgriturService agriturService = service.getAgriturServiceImplPort();
-						List<Agritur> near = new ArrayList<>();
-						try{
-							near = agriturService.getNearAgritur(loc.getLatitude(), loc.getLongitude(), userEntity.getRange());
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-						if(! near.isEmpty()){
-							sendAgriturList(chatId, near);
-						}
-						else {
-							sendTelegramMessage(chatId, "Not found, place not recognized or no near agritur");
-						}
-					}
-					Thread.currentThread().interrupt();
-					return;
-				}
-				else if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
+				if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
 					if( command.equals( "PLACE" ) ) {
 						if(alphanumericalSplit.length == 1) {
 							sendTelegramMessage(chatId, "Send a place name and you'll recevive the nearest agriturs");
@@ -260,7 +255,7 @@ public class UpdateTask implements Runnable {
 					}
 					else if( command.equals( "RANGE" ) ) {
 						if(alphanumericalSplit.length == 1) {
-							sendTelegramMessage(chatId, "Send a complete agritur name and your dislike will be saved");
+							sendTelegramMessage(chatId, "Send a number of km between 1 to 5 for setting search radius");
 							Thread.currentThread().interrupt();
 	    					return;
 						}
