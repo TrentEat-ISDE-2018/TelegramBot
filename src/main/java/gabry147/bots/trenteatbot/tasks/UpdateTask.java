@@ -1,16 +1,13 @@
 package gabry147.bots.trenteatbot.tasks;
 
 import org.apache.log4j.Logger;
-import org.telegram.telegrambots.api.methods.ForwardMessage;
-import org.telegram.telegrambots.api.methods.groupadministration.GetChatAdministrators;
-import org.telegram.telegrambots.api.methods.groupadministration.GetChatMember;
-import org.telegram.telegrambots.api.methods.groupadministration.KickChatMember;
 import org.telegram.telegrambots.api.methods.groupadministration.LeaveChat;
-import org.telegram.telegrambots.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.*;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 import businesslayer.ws.Agritur;
 import businesslayer.ws.AgriturService;
@@ -21,7 +18,6 @@ import gabry147.bots.trenteatbot.entities.extra.UserRole;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class UpdateTask implements Runnable {
 
@@ -255,7 +251,8 @@ public class UpdateTask implements Runnable {
 					}
 					else if( command.equals( "RANGE" ) ) {
 						if(alphanumericalSplit.length == 1) {
-							sendTelegramMessage(chatId, "Send a number of km between 1 to 5 for setting search radius");
+							sendTelegramMessage(chatId, "Send a number of km between 1 to 5 for setting search radius\n"
+									+ "Current: "+userEntity.getRange());
 							Thread.currentThread().interrupt();
 	    					return;
 						}
@@ -376,6 +373,19 @@ public class UpdateTask implements Runnable {
 		reply.setChatId(chatId);
 		reply.enableHtml(true);
 		reply.setText(text);
+		
+		ReplyKeyboardMarkup markupKeyboard = new ReplyKeyboardMarkup();
+		markupKeyboard.setOneTimeKeyboard(true);
+		markupKeyboard.setResizeKeyboard(true);
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+        KeyboardRow rowInline = new KeyboardRow();
+        rowInline.add(new KeyboardButton().setText("/like "+ag.getName()));
+        rowsInline.add(rowInline);
+        KeyboardRow rowInline2 = new KeyboardRow();
+        rowInline2.add(new KeyboardButton().setText("/dislike "+ag.getName()));
+        rowsInline.add(rowInline2);
+        markupKeyboard.setKeyboard(rowsInline);
+        reply.setReplyMarkup(markupKeyboard);
 		try {
 			bot.sendMessage(reply);
 		} catch (TelegramApiException e) {
