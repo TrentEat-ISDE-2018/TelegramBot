@@ -108,10 +108,33 @@ public class UpdateTask implements Runnable {
 			
 			//user is in db
 			if(userEntity != null) {
-				if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
+				if(! message.hasText()) {
+					if(message.hasLocation()){
+						Location loc = message.getLocation();
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						List<Agritur> near = new ArrayList<>();
+						try{
+							near = agriturService.getNearAgritur(loc.getLatitude(), loc.getLongitude(), userEntity.getRange());
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+						if(! near.isEmpty()){
+							sendAgriturList(chatId, near);
+						}
+						else {
+							sendTelegramMessage(chatId, "Not found, place not recognized or no near agritur");
+						}
+					}
+					Thread.currentThread().interrupt();
+					return;
+				}
+				else if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
 					if( command.equals( "PLACE" ) ) {
 						if(alphanumericalSplit.length == 1) {
 							sendTelegramMessage(chatId, "Send a place name and you'll recevive the nearest agriturs");
+							Thread.currentThread().interrupt();
+	    					return;
 						}
 						String place = alphanumericalSplit[1];
 						//starting from 1, 0 is the command
@@ -138,6 +161,8 @@ public class UpdateTask implements Runnable {
 					else if( command.equals( "AGRITUR" ) ) {
 						if(alphanumericalSplit.length == 1) {
 							sendTelegramMessage(chatId, "Send a complete agritur name and you'll recevive all the info");
+							Thread.currentThread().interrupt();
+	    					return;
 						}
 						String name = alphanumericalSplit[1];
 						//starting from 1, 0 is the command
@@ -165,6 +190,8 @@ public class UpdateTask implements Runnable {
 					else if( command.equals( "LIKE" ) ) {
 						if(alphanumericalSplit.length == 1) {
 							sendTelegramMessage(chatId, "Send a complete agritur name and your like will be saved");
+							Thread.currentThread().interrupt();
+	    					return;
 						}
 						String name = alphanumericalSplit[1];
 						//starting from 1, 0 is the command
@@ -192,6 +219,8 @@ public class UpdateTask implements Runnable {
 					else if( command.equals( "DISLIKE" ) ) {
 						if(alphanumericalSplit.length == 1) {
 							sendTelegramMessage(chatId, "Send a complete agritur name and your dislike will be saved");
+							Thread.currentThread().interrupt();
+	    					return;
 						}
 						String name = alphanumericalSplit[1];
 						//starting from 1, 0 is the command
@@ -225,6 +254,24 @@ public class UpdateTask implements Runnable {
 						}
 						else {
 							sendTelegramMessage(chatId, "Nothing to recommend");
+						}
+						Thread.currentThread().interrupt();
+    					return;
+					}
+					else if( command.equals( "RANGE" ) ) {
+						if(alphanumericalSplit.length == 1) {
+							sendTelegramMessage(chatId, "Send a complete agritur name and your dislike will be saved");
+							Thread.currentThread().interrupt();
+	    					return;
+						}
+						int range = Integer.parseInt(alphanumericalSplit[1]);
+						if(range>0 && range<10) {
+							userEntity.setRange(range);
+							UserEntity.saveUser(userEntity);
+							sendTelegramMessage(chatId, "Saved");
+						}
+						else {
+							sendTelegramMessage(chatId, "Provide a number from 1 to 5");
 						}
 						Thread.currentThread().interrupt();
     					return;
@@ -313,18 +360,21 @@ public class UpdateTask implements Runnable {
 						+ "Maps: "+sanitize(ag.getAddress()) +
 						"</a>\n";
 		if(ag.getPhone() != null) {
-			text += "<b>Phone:</b>" + ag.getPhone() + "\n";
+			text += "<b>Phone: </b>" + ag.getPhone() + "\n";
 		}
 		if(ag.getEmail() != null) {
-			text += "<b>Mail:</b>" + ag.getEmail() + "\n";
+			text += "<b>Mail: </b>" + ag.getEmail() + "\n";
 		}
 		if(ag.getAltitude() != null) {
-			text += "<b>Altitude:</b>" + ag.getAltitude() + "\n";
+			text += "<b>Altitude: </b>" + ag.getAltitude() + "\n";
+		}
+		if(ag.getNumForSleep() != null) {
+			text += "<b>Possibility to sleep: </b>" + ag.getAltitude() + " beds available\n";
 		}
 		DecimalFormat df = new DecimalFormat("#.00");
 		text += 
-				"\n<b>Actual weather:</b>" + ag.getMain() +"-"+ ag.getDescription() + "\n"
-				+ "<b>Temp:</b> " + df.format(ag.getTemp()) + "(Min:" + df.format(ag.getTempMin()) + ", Max:" + df.format(ag.getTempMax())+")";
+				"\n<b>Actual weather:</b>" + ag.getMain() +" -"+ ag.getDescription() + "\n"
+				+ "<b>Temp:</b> " + df.format(ag.getTemp()) + " (Min: " + df.format(ag.getTempMin()) + ", Max: " + df.format(ag.getTempMax())+")";
 		
 		//TODO
 		SendMessage reply = new SendMessage();
