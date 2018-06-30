@@ -19,6 +19,7 @@ import gabry147.bots.trenteatbot.TrentEatBot;
 import gabry147.bots.trenteatbot.entities.UserEntity;
 import gabry147.bots.trenteatbot.entities.extra.UserRole;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,6 @@ public class UpdateTask implements Runnable {
     			}
     			updateUserDbInfo(message.getFrom());
     		}   		
-    		int botId = getBotID();
     		
     		if(chatId != userId) {
     			LeaveChat leaveChat = new LeaveChat();
@@ -307,7 +307,25 @@ public class UpdateTask implements Runnable {
     }
     
 	private void sendAgriturInfo(long chatId, Agritur ag) {
-		String text = sanitize(ag.getName() + "\n" + ag.getPhone());
+		String text = 
+				"<b>" + sanitize(ag.getName()) + "</b>\n" +
+				"<a href='http://www.google.com/maps/place/"+ag.getLat()+","+ag.getLon()+"&zoom=13'>"
+						+ "Maps: "+sanitize(ag.getAddress()) +
+						"</a>\n";
+		if(ag.getPhone() != null) {
+			text += "<b>Phone:</b>" + ag.getPhone() + "\n";
+		}
+		if(ag.getEmail() != null) {
+			text += "<b>Mail:</b>" + ag.getEmail() + "\n";
+		}
+		if(ag.getAltitude() != null) {
+			text += "<b>Altitude:</b>" + ag.getAltitude() + "\n";
+		}
+		DecimalFormat df = new DecimalFormat("#.00");
+		text += 
+				"\n<b>Actual weather:</b>" + ag.getMain() +"-"+ ag.getDescription() + "\n"
+				+ "<b>Temp:</b> " + df.format(ag.getTemp()) + "(Min:" + df.format(ag.getTempMin()) + ", Max:" + df.format(ag.getTempMax())+")";
+		
 		//TODO
 		SendMessage reply = new SendMessage();
 		reply.setChatId(chatId);
@@ -380,18 +398,7 @@ public class UpdateTask implements Runnable {
 			e.printStackTrace();
 		}
     }
-    
-    private int getBotID() {
-		int botId = 0;
-		try {
-			botId = bot.getMe().getId();
-		} catch (TelegramApiException e) {
-			logger.error("Error getting bot id");
-			e.printStackTrace();
-		}
-		return botId;
-    }
-    
+ 
     private void promoteUser(long chatId, long userToPromoteID, UserEntity senderUser) {
     	UserEntity userToPromote = UserEntity.getById(userToPromoteID);
 		if(userToPromote == null) {
