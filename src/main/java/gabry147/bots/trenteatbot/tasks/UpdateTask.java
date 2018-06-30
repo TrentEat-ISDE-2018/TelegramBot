@@ -96,11 +96,11 @@ public class UpdateTask implements Runnable {
 			if( command.equals( "START" ) ) {
 				updateUserDbInfo(message.getFrom());
 				sendTelegramHtmlMessage(chatId, "<b>Welcome in TrentEat</b> \n"
-						+ sanitize("forward your position to get agritur near you (/range for set distance)"
-						+ "/place <place name> for agritur near <place name>"
-						+ "/agritur <agritur full name> for realtime info"
-						+ "/like <agritur full name> for a good agritur"
-						+ "/dislike <agritur full name> for a bad agritur"
+						+ sanitize("forward your position to get agritur near you (/range for set distance)\n"
+						+ "/place <place name> for agritur near <place name>\n"
+						+ "/agritur <agritur full name> for realtime info\n"
+						+ "/like <agritur full name> for a good agritur\n"
+						+ "/dislike <agritur full name> for a bad agritur\n"
 						+ "/findForMe for recommendation"), true);
 				Thread.currentThread().interrupt();
 				return;
@@ -127,6 +127,8 @@ public class UpdateTask implements Runnable {
 						else {
 							sendTelegramMessage(chatId, "Not found, place not recognized or no near agritur");
 						}
+						Thread.currentThread().interrupt();
+    					return;
 					}
 					else if( command.equals( "AGRITUR" ) ) {
 						if(alphanumericalSplit.length == 1) {
@@ -147,7 +149,8 @@ public class UpdateTask implements Runnable {
 						else {
 							sendTelegramMessage(chatId, "Agritur not found");
 						}
-						
+						Thread.currentThread().interrupt();
+    					return;					
 					}
 					else if( command.equals( "LIKE" ) ) {
 						if(alphanumericalSplit.length == 1) {
@@ -168,6 +171,8 @@ public class UpdateTask implements Runnable {
 						else {
 							sendTelegramMessage(chatId, "Agritur not found");
 						}
+						Thread.currentThread().interrupt();
+    					return;
 					}
 					else if( command.equals( "DISLIKE" ) ) {
 						if(alphanumericalSplit.length == 1) {
@@ -188,6 +193,8 @@ public class UpdateTask implements Runnable {
 						else {
 							sendTelegramMessage(chatId, "Agritur not found");
 						}
+						Thread.currentThread().interrupt();
+    					return;
 					}
 					else if( command.equals( "FINDFORME" ) ) {
 						AgriturServiceImplService service = new AgriturServiceImplService();
@@ -199,6 +206,8 @@ public class UpdateTask implements Runnable {
 						else {
 							sendTelegramMessage(chatId, "Nothing to recommend");
 						}
+						Thread.currentThread().interrupt();
+    					return;
 					}
     			}
     			if(userEntity.getRole().compareTo(UserRole.SUPERADMIN) <= 0) {
@@ -283,7 +292,13 @@ public class UpdateTask implements Runnable {
 		SendMessage reply = new SendMessage();
 		reply.setChatId(chatId);
 		reply.enableHtml(true);
-		reply.setText(text);		
+		reply.setText(text);
+		try {
+			bot.sendMessage(reply);
+		} catch (TelegramApiException e) {
+			logger.error("Error sending text message");
+			e.printStackTrace();
+		}
 	}
 	
 	private void sendAgriturList(long chatId, List<Agritur> list) {
@@ -296,7 +311,13 @@ public class UpdateTask implements Runnable {
 		SendMessage reply = new SendMessage();
 		reply.setChatId(chatId);
 		reply.enableHtml(true);
-		reply.setText(text);		
+		reply.setText(text);	
+		try {
+			bot.sendMessage(reply);
+		} catch (TelegramApiException e) {
+			logger.error("Error sending text message");
+			e.printStackTrace();
+		}
 	}
     
     private void sendUserInfoList(long chatId, List<UserEntity> members) {
