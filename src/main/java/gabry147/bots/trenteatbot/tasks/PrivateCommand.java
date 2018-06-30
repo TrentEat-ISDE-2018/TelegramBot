@@ -1,4 +1,4 @@
-package gabry147.bots.broadcaster_bot.tasks;
+package gabry147.bots.trenteatbot.tasks;
 
 //command already generated
 //order is important: new command at the end of the list

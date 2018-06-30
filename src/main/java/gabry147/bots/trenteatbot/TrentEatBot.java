@@ -1,4 +1,4 @@
-package gabry147.bots.broadcaster_bot;
+package gabry147.bots.trenteatbot;
 
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -6,16 +6,16 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import gabry147.bots.broadcaster_bot.tasks.UpdateTask;
+import gabry147.bots.trenteatbot.tasks.UpdateTask;
 
 import java.io.*;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class Broadcaster_bot extends TelegramLongPollingBot{
+public class TrentEatBot extends TelegramLongPollingBot{
 
-    public static Logger logger=Logger.getLogger(Broadcaster_bot.class);
+    public static Logger logger=Logger.getLogger(TrentEatBot.class);
 
     private final static String PROPERTIES_FILE_NAME="bot_config.properties";
 
@@ -24,7 +24,7 @@ public class Broadcaster_bot extends TelegramLongPollingBot{
     private boolean dbLogging=false;
     private ThreadPoolExecutor executor;
 
-    public Broadcaster_bot(){
+    public TrentEatBot(){
         super();
         loadConfiguration();
 
@@ -82,7 +82,7 @@ public class Broadcaster_bot extends TelegramLongPollingBot{
         try {
 
             /* retrieve file inside the jar*/
-            input=Broadcaster_bot.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME);
+            input=TrentEatBot.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME);
             // load a properties file
             prop.load(input);
 

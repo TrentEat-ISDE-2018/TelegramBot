@@ -1,9 +1,9 @@
-package gabry147.bots.broadcaster_bot.entities;
+package gabry147.bots.trenteatbot.entities;
 
 import javax.persistence.*;
 
-import gabry147.bots.broadcaster_bot.entities.dao.Broadcaster_BotDao;
-import gabry147.bots.broadcaster_bot.entities.extra.UserRole;
+import gabry147.bots.trenteatbot.entities.dao.Broadcaster_BotDao;
+import gabry147.bots.trenteatbot.entities.extra.UserRole;
 
 import java.io.Serializable;
 import java.util.List;

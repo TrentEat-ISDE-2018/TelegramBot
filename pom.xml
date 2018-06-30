@@ -56,7 +56,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>gabry147.bots.broadcaster_bot.Main</mainClass>
+                            <mainClass>gabry147.bots.trenteatbot.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

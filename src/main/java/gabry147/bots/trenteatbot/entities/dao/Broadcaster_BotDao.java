@@ -1,4 +1,4 @@
-package gabry147.bots.broadcaster_bot.entities.dao;
+package gabry147.bots.trenteatbot.entities.dao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

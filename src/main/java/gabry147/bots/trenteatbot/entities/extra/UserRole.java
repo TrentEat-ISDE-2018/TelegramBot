@@ -1,4 +1,4 @@
-package gabry147.bots.broadcaster_bot.entities.extra;
+package gabry147.bots.trenteatbot.entities.extra;
 
 /**
  * The role of the user.

@@ -1,8 +1,4 @@
-package gabry147.bots.broadcaster_bot.tasks;
-
-import gabry147.bots.broadcaster_bot.Broadcaster_bot;
-import gabry147.bots.broadcaster_bot.entities.UserEntity;
-import gabry147.bots.broadcaster_bot.entities.extra.UserRole;
+package gabry147.bots.trenteatbot.tasks;
 
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.ForwardMessage;
@@ -16,6 +12,10 @@ import org.telegram.telegrambots.api.objects.*;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
+import gabry147.bots.trenteatbot.TrentEatBot;
+import gabry147.bots.trenteatbot.entities.UserEntity;
+import gabry147.bots.trenteatbot.entities.extra.UserRole;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -23,10 +23,10 @@ public class UpdateTask implements Runnable {
 
     public static Logger logger=Logger.getLogger(UpdateTask.class);
 
-    private Broadcaster_bot bot;
+    private TrentEatBot bot;
     private Update update;
 
-    public UpdateTask(Broadcaster_bot bot, Update update){
+    public UpdateTask(TrentEatBot bot, Update update){
         this.bot=bot;
         this.update=update;
     }
@@ -80,7 +80,6 @@ public class UpdateTask implements Runnable {
 			String command = commandSplit[0].substring(1).toUpperCase();
 
 			if( command.equals( "START" ) ) {
-				//save user and set notification to true
 				updateUserDbInfo(message.getFrom());
 				sendTelegramHtmlMessage(chatId, "<b>Welcome in TrentEat</b> \n"
 						+ sanitize("forward your position to get agritur near you (/range for set distance)"
@@ -96,11 +95,22 @@ public class UpdateTask implements Runnable {
 			//user is in db
 			if(userEntity != null) {
 				if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
-    				
+					if( command.equals( "PLACE" ) ) {
+						
+					}
+					else if( command.equals( "AGRITUR" ) ) {
+						
+					}
+					else if( command.equals( "LIKE" ) ) {
+						
+					}
+					else if( command.equals( "DISLIKE" ) ) {
+						
+					}
+					else if( command.equals( "FINDFORME" ) ) {
+						
+					}
     			}
-				/*
-				 *  Commands for APPROVER
-				 */
     			if(userEntity.getRole().compareTo(UserRole.SUPERADMIN) <= 0) {
     				if( command.equals( PrivateCommand.APPROVA.toString() ) ) {
     					String userToPromoteStringID = alphanumericalSplit[1];

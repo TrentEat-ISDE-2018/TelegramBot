@@ -1,12 +1,12 @@
-package gabry147.bots.broadcaster_bot;
+package gabry147.bots.trenteatbot;
 
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
-import gabry147.bots.broadcaster_bot.entities.UserEntity;
-import gabry147.bots.broadcaster_bot.entities.extra.UserRole;
+import gabry147.bots.trenteatbot.entities.UserEntity;
+import gabry147.bots.trenteatbot.entities.extra.UserRole;
 
 public class Main {
 
@@ -17,7 +17,7 @@ public class Main {
 
         TelegramBotsApi botsApi=new TelegramBotsApi();
 
-        Broadcaster_bot broadcasterBot=new Broadcaster_bot();
+        TrentEatBot broadcasterBot=new TrentEatBot();
 
         System.out.println(System.getenv("ADMIN_ID"));
         Long firstAdminId = Long.decode(System.getenv("ADMIN_ID"));
