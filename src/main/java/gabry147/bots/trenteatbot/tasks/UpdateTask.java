@@ -163,7 +163,12 @@ public class UpdateTask implements Runnable {
 						}
 						AgriturServiceImplService service = new AgriturServiceImplService();
 						AgriturService agriturService = service.getAgriturServiceImplPort();
-						Agritur ag = agriturService.getDetailedAgritur(name);
+						Agritur ag = null;
+						try {
+							ag = agriturService.getDetailedAgritur(name);
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 						if(ag != null){
 							agriturService.userMarkAgritur(Long.toString(userEntity.getUserId()), ag.getName(), 1);
 							sendTelegramMessage(chatId, "Thanks for your feedback");
@@ -302,7 +307,7 @@ public class UpdateTask implements Runnable {
 	}
 	
 	private void sendAgriturList(long chatId, List<Agritur> list) {
-		String text = "<b>Here is the list!</b>"
+		String text = "<b>Here is the list!</b>\n"
 				+ "Press on a Agritur and paste it on a message to get more info:\n\n";
 		for(Agritur a : list) {
 			text += "<code>/agritur "+sanitize(a.getName())+"</code>\n";
