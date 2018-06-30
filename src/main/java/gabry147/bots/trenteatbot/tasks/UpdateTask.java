@@ -120,13 +120,13 @@ public class UpdateTask implements Runnable {
 						}
 						AgriturServiceImplService service = new AgriturServiceImplService();
 						AgriturService agriturService = service.getAgriturServiceImplPort();
-						List<Agritur> near = null;
+						List<Agritur> near = new ArrayList<>();
 						try{
 							near = agriturService.getAgriturByPlace(place, userEntity.getRange());
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
-						if(near != null){
+						if(! near.isEmpty()){
 							sendAgriturList(chatId, near);
 						}
 						else {
