@@ -120,8 +120,13 @@ public class UpdateTask implements Runnable {
 						}
 						AgriturServiceImplService service = new AgriturServiceImplService();
 						AgriturService agriturService = service.getAgriturServiceImplPort();
-						List<Agritur> near = agriturService.getAgriturByPlace(place, userEntity.getRange());
-						if(near.size() > 0){
+						List<Agritur> near = null;
+						try{
+							near = agriturService.getAgriturByPlace(place, userEntity.getRange());
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+						if(near != null){
 							sendAgriturList(chatId, near);
 						}
 						else {
@@ -141,7 +146,12 @@ public class UpdateTask implements Runnable {
 						}
 						AgriturServiceImplService service = new AgriturServiceImplService();
 						AgriturService agriturService = service.getAgriturServiceImplPort();
-						Agritur ag = agriturService.getDetailedAgritur(name);
+						Agritur ag = null;
+						try {
+							ag = agriturService.getDetailedAgritur(name);
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 						if(ag != null){
 							sendAgriturInfo(chatId, ag);
 							agriturService.userViewAgritur(Long.toString(userEntity.getUserId()), ag.getName());
@@ -190,7 +200,12 @@ public class UpdateTask implements Runnable {
 						}
 						AgriturServiceImplService service = new AgriturServiceImplService();
 						AgriturService agriturService = service.getAgriturServiceImplPort();
-						Agritur ag = agriturService.getDetailedAgritur(name);
+						Agritur ag = null;
+						try {
+							ag = agriturService.getDetailedAgritur(name);
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 						if(ag != null){
 							agriturService.userMarkAgritur(Long.toString(userEntity.getUserId()), ag.getName(), -1);
 							sendTelegramMessage(chatId, "Thanks for your feedback");
