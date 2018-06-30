@@ -337,6 +337,7 @@ public class UpdateTask implements Runnable {
 		reply.setChatId(chatId);
 		reply.enableHtml(markdown);
 		reply.setText(text);
+		reply.setReplyMarkup(null);
 		try {
 			bot.sendMessage(reply);
 		} catch (TelegramApiException e) {
@@ -361,7 +362,7 @@ public class UpdateTask implements Runnable {
 			text += "<b>Altitude: </b>" + ag.getAltitude() + "\n";
 		}
 		if(ag.getNumForSleep() != null) {
-			text += "<b>Possibility to sleep: </b>" + ag.getAltitude() + " beds available\n";
+			text += "<b>Possibility to sleep: </b>" + ag.getNumForSleep() + " beds available\n";
 		}
 		DecimalFormat df = new DecimalFormat("#.00");
 		text += 
@@ -404,7 +405,8 @@ public class UpdateTask implements Runnable {
 		SendMessage reply = new SendMessage();
 		reply.setChatId(chatId);
 		reply.enableHtml(true);
-		reply.setText(text);	
+		reply.setText(text);
+		reply.setReplyMarkup(null);
 		try {
 			bot.sendMessage(reply);
 		} catch (TelegramApiException e) {
@@ -425,7 +427,8 @@ public class UpdateTask implements Runnable {
 			text = text + username +"  <code>"+u.getUserId()+"</code>  "+sanitize(u.getRole().toString())+"\n";
 		}
 		
-		reply.setText(text);		
+		reply.setText(text);
+		reply.setReplyMarkup(null);
 		try {
 			bot.sendMessage(reply);
 		} catch (TelegramApiException e) {
@@ -446,6 +449,7 @@ public class UpdateTask implements Runnable {
 				"<code>" + user.getUserId() +"</code>\n" +
 				"Status: " + sanitize(user.getRole().toString()) + "\n"
 				);
+		reply.setReplyMarkup(null);
 		try {
 			bot.sendMessage(reply);
 		} catch (TelegramApiException e) {
