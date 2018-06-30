@@ -68,7 +68,7 @@ public class UpdateTask implements Runnable {
 					AgriturService agriturService = service.getAgriturServiceImplPort();
 					List<Agritur> near = new ArrayList<>();
 					try{
-						near = agriturService.getNearAgritur(loc.getLatitude(), loc.getLongitude(), userEntity.getRange());
+						near = agriturService.getNearAgritur(userEntity.getRange(), loc.getLatitude(), loc.getLongitude());
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
