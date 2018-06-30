@@ -12,6 +12,9 @@ import org.telegram.telegrambots.api.objects.*;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
+import businesslayer.ws.Agritur;
+import businesslayer.ws.AgriturService;
+import businesslayer.ws.AgriturServiceImplService;
 import gabry147.bots.trenteatbot.TrentEatBot;
 import gabry147.bots.trenteatbot.entities.UserEntity;
 import gabry147.bots.trenteatbot.entities.extra.UserRole;
@@ -57,6 +60,17 @@ public class UpdateTask implements Runnable {
 					logger.error(e);
 				}
 			}
+    		
+    		if(! message.hasText()) {
+    			if(message.hasLocation()) {
+    				//TODO
+    			}
+    			else {
+    				sendTelegramMessage(chatId, "Not supported");
+    				Thread.currentThread().interrupt();
+                    return;
+    			}
+    		}
 			
 			String[] alphanumericalSplit = message.getText().split(" ");
 
@@ -96,19 +110,95 @@ public class UpdateTask implements Runnable {
 			if(userEntity != null) {
 				if(userEntity.getRole().compareTo(UserRole.USER) <= 0) {
 					if( command.equals( "PLACE" ) ) {
-						
+						if(alphanumericalSplit.length == 1) {
+							sendTelegramMessage(chatId, "Send a place name and you'll recevive the nearest agriturs");
+						}
+						String place = alphanumericalSplit[1];
+						//starting from 1, 0 is the command
+						for(int i = 2; i<alphanumericalSplit.length; i++) {
+							place += " " + alphanumericalSplit[i];
+						}
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						List<Agritur> near = agriturService.getAgriturByPlace(place, userEntity.getRange());
+						if(near.size() > 0){
+							sendAgriturList(chatId, near);
+						}
+						else {
+							sendTelegramMessage(chatId, "Not found, place not recognized or no near agritur");
+						}
 					}
 					else if( command.equals( "AGRITUR" ) ) {
+						if(alphanumericalSplit.length == 1) {
+							sendTelegramMessage(chatId, "Send a complete agritur name and you'll recevive all the info");
+						}
+						String name = alphanumericalSplit[1];
+						//starting from 1, 0 is the command
+						for(int i = 2; i<alphanumericalSplit.length; i++) {
+							name += " " + alphanumericalSplit[i];
+						}
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						Agritur ag = agriturService.getDetailedAgritur(name);
+						if(ag != null){
+							sendAgriturInfo(chatId, ag);
+							agriturService.userViewAgritur(Long.toString(userEntity.getUserId()), ag.getName());
+						}
+						else {
+							sendTelegramMessage(chatId, "Agritur not found");
+						}
 						
 					}
 					else if( command.equals( "LIKE" ) ) {
-						
+						if(alphanumericalSplit.length == 1) {
+							sendTelegramMessage(chatId, "Send a complete agritur name and your like will be saved");
+						}
+						String name = alphanumericalSplit[1];
+						//starting from 1, 0 is the command
+						for(int i = 2; i<alphanumericalSplit.length; i++) {
+							name += " " + alphanumericalSplit[i];
+						}
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						Agritur ag = agriturService.getDetailedAgritur(name);
+						if(ag != null){
+							agriturService.userMarkAgritur(Long.toString(userEntity.getUserId()), ag.getName(), 1);
+							sendTelegramMessage(chatId, "Thanks for your feedback");
+						}
+						else {
+							sendTelegramMessage(chatId, "Agritur not found");
+						}
 					}
 					else if( command.equals( "DISLIKE" ) ) {
-						
+						if(alphanumericalSplit.length == 1) {
+							sendTelegramMessage(chatId, "Send a complete agritur name and your dislike will be saved");
+						}
+						String name = alphanumericalSplit[1];
+						//starting from 1, 0 is the command
+						for(int i = 2; i<alphanumericalSplit.length; i++) {
+							name += " " + alphanumericalSplit[i];
+						}
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						Agritur ag = agriturService.getDetailedAgritur(name);
+						if(ag != null){
+							agriturService.userMarkAgritur(Long.toString(userEntity.getUserId()), ag.getName(), -1);
+							sendTelegramMessage(chatId, "Thanks for your feedback");
+						}
+						else {
+							sendTelegramMessage(chatId, "Agritur not found");
+						}
 					}
 					else if( command.equals( "FINDFORME" ) ) {
-						
+						AgriturServiceImplService service = new AgriturServiceImplService();
+						AgriturService agriturService = service.getAgriturServiceImplPort();
+						List<Agritur> recommends = agriturService.recommendAgritur(Long.toString(userEntity.getUserId()));
+						if(recommends.size() != 0){
+							sendAgriturList(chatId, recommends);
+						}
+						else {
+							sendTelegramMessage(chatId, "Nothing to recommend");
+						}
 					}
     			}
     			if(userEntity.getRole().compareTo(UserRole.SUPERADMIN) <= 0) {
@@ -153,7 +243,6 @@ public class UpdateTask implements Runnable {
     	Thread.currentThread().interrupt();
     } // end run
 
-
 	private String sanitize(String toSanitize) {
     	//replace & must be first or it will destroy all sanitizations
     	return toSanitize.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
@@ -187,6 +276,28 @@ public class UpdateTask implements Runnable {
 			e.printStackTrace();
 		}
     }
+    
+	private void sendAgriturInfo(long chatId, Agritur ag) {
+		String text = sanitize(ag.getName() + "\n" + ag.getPhone());
+		//TODO
+		SendMessage reply = new SendMessage();
+		reply.setChatId(chatId);
+		reply.enableHtml(true);
+		reply.setText(text);		
+	}
+	
+	private void sendAgriturList(long chatId, List<Agritur> list) {
+		String text = "<b>Here is the list!</b>"
+				+ "Press on a Agritur and paste it on a message to get more info:\n\n";
+		for(Agritur a : list) {
+			text += "<code>/agritur "+sanitize(a.getName())+"</code>\n";
+			text += "<i>"+sanitize(a.getAddress())+"</i>\n\n";
+		}
+		SendMessage reply = new SendMessage();
+		reply.setChatId(chatId);
+		reply.enableHtml(true);
+		reply.setText(text);		
+	}
     
     private void sendUserInfoList(long chatId, List<UserEntity> members) {
     	SendMessage reply = new SendMessage();
