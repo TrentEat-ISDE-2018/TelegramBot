@@ -349,7 +349,7 @@ public class UpdateTask implements Runnable {
 	private void sendAgriturInfo(long chatId, Agritur ag) {
 		String text = 
 				"<b>" + sanitize(ag.getName()) + "</b>\n" +
-				"<a href='http://www.google.com/maps/place/"+ag.getLat()+","+ag.getLon()+"&zoom=13'>"
+				"<a href='http://www.google.com/maps/place/"+ag.getLat()+","+ag.getLon()+"?zoom=13'>"
 						+ "Maps: "+sanitize(ag.getAddress()) +
 						"</a>\n";
 		if(ag.getPhone() != null) {
